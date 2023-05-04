@@ -1,5 +1,6 @@
 # brainf
 a brainfck interpreter written in javascript
+https://en.wikipedia.org/wiki/Brainfuck
 
 ```js
 //Usage:
