@@ -1,101 +1,69 @@
-const brainFuck = ( code ) => {
+const brainFuck = ({
+                    code = '',
+                    input = '',
+                    memorySize = 100
+                  }) => {  
+  let memory  = new Uint8Array(memorySize);
+  let output = '';
+  let outputPointer = 0;
+  let inputPointer = 0;
+  let stack = [];
 
-  code = code.replace(/[\n\r\s\t]+/g, '')
+  code = code.replace(/[\n\r\s\t]+/g, '');
+  code = code.replace(/[\d]+/g, function(match, offset, string) {
+    return string[offset - 1].repeat(match - 1)
+  });
 
-  let memory  = new Uint8Array( 100 ),
-      pointer = 0
-
-  for ( let index = 0; index < code.length; index++ ) {
-
-    switch ( code[index] ) {
-
+  for (let index = 0; index < code.length; index++) {
+    switch (code[index]) {
       case '+':
-        memory[pointer]++
-      break
-
+        memory[outputPointer]++;
+      break;
       case '-':
-        memory[pointer]--
-      break
-
+        memory[outputPointer]--;
+      break;
       case '>':
-        pointer++
-      break
-
+        outputPointer++;
+      break;
       case '<':
-        pointer--
-      break
-
+        outputPointer--;
+      break;
       case '.':
-        const outputCharacter = String.fromCharCode( memory[pointer] )
-
-        console.log( outputCharacter )
-      break
-
+        output += String.fromCharCode(memory[outputPointer]);
+      break;
       case ',':
-        const inputCharacter = prompt('Please enter value').charCodeAt(0)
-        
-        memory[pointer] = inputCharacter
-      break
-
+        memory[outputPointer] = input.charCodeAt(inputPointer++);
+      break;
       case '[':
-        if ( memory[pointer] === 0 ) {
-
-          let bracketCount = 1
-
-          do {
-
-            index++
-
-            if ( code[index] === '[' ) {
-
-              bracketCount++
-
+        if (memory[outputPointer] === 0) {
+          let bracketCount = 0;
+          for (let bracketIndex = index + 1; bracketIndex < code.length; bracketIndex++) {
+            if (code[bracketIndex] === "[") {
+              bracketCount++;
+            } else if (code[bracketIndex] === "]") {
+              if (bracketCount === 0) {
+                index = bracketIndex;
+                break;
+              } else {
+                bracketCount--;
+              }
             }
-
-            if ( code[index] === ']' ) {
-
-              bracketCount--
-
-            }
-
-          } while ( bracketCount )
-            
+          }
+        } else {
+          stack.push(index);
         }
-      break
-
+      break;
       case ']':
-        if ( memory[pointer] !== 0 ) {
-
-          let bracketCount = 1
-
-          do {
-
-            index--
-
-            if ( code[index] === '[' ) {
-
-              bracketCount--
-
-            }
-
-            if ( code[index] === ']' ) {
-
-              bracketCount++
-
-            }
-
-          } while ( bracketCount )
-
+        if (memory[outputPointer] !== 0) {
+          index = stack[stack.length - 1];
+        } else {
+          stack.pop();
         }
-      break
-
+      break;
       default:
-        throw new Error('Syntax Error')
-      
+        throw new SyntaxError(`Character: '${code[index]}'`);
     }
-
   }
 
+  return output;
 }
-
-brainFuck('>++++++++[-<+++++++++>]<.>>+>-[+]++>++>+++[>[->+++<<+++>]<<]>-----.>->+++..+++.>-.<<+[>[+>+]>>]<--------------.>>.+++.------.--------.>+.>+.')
