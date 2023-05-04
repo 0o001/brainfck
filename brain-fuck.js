@@ -38,9 +38,9 @@ const brainFuck = ({
         if (memory[outputPointer] === 0) {
           let bracketCount = 0;
           for (let bracketIndex = index + 1; bracketIndex < code.length; bracketIndex++) {
-            if (code[bracketIndex] === "[") {
+            if (code[bracketIndex] === '[') {
               bracketCount++;
-            } else if (code[bracketIndex] === "]") {
+            } else if (code[bracketIndex] === ']') {
               if (bracketCount === 0) {
                 index = bracketIndex;
                 break;
